@@ -9,7 +9,7 @@ public class PlayerMain {
 			public void run() {
 				try {
 					
-					UserInterface window = new UserInterface();
+					 new FlashCards();
 					
 				} catch (Exception e) {
 					e.printStackTrace();

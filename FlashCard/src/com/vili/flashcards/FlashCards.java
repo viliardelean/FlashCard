@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -24,25 +23,30 @@ import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import java.awt.Color;
 
-public class UserInterface {
+public class FlashCards {
 	private JFrame frame;
 	private JPanel panel;
 	private ArrayList<Card> cardList;
-	private Iterator cardIterator;
+	private Iterator<Card> cardIterator;
 	private Card currentCard;
 	private JButton btnNextCard;
+	private JButton btnSubmit;
 	private JTextArea qArea;
 	private JTextArea aArea;
-	private boolean isSkipCard;
-	private JLabel rightIcon;
+
+	private JLabel correctIcon;
+	private JLabel incorrectIcon;
 	
-	public UserInterface() {
+
+	public FlashCards() {
 		initialize(); 
 	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		// Frame and Panel
 		frame = new JFrame("Flash Cards");
 		panel = new JPanel();
 		
@@ -59,7 +63,7 @@ public class UserInterface {
 		// Menu Bar
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		fileMenu.setBackground(Color.GRAY);
+		fileMenu.setBackground(Color.BLUE);
 		fileMenu.setFont(new Font("Segoe UI", Font.BOLD, 14));
 		JMenuItem opeMenuItem = new JMenuItem("Load Card Set");
 		fileMenu.add(opeMenuItem);
@@ -67,11 +71,7 @@ public class UserInterface {
 		frame.setJMenuBar(menuBar);
 		opeMenuItem.addActionListener(new OpenMenuListener()); 
 
-		/*
-		 * newMenuItem.addActionListener(new NewMenuListener());
-		 * saveMenuItem.addActionListener(new SaveMenuListener());
-		 */
-
+		// Labels
 		JLabel qLabel = new JLabel("Question :");
 		qLabel.setBounds(10, 21, 70, 14);
 		panel.add(qLabel);
@@ -95,7 +95,8 @@ public class UserInterface {
 		aArea.setBounds(10, 154, 331, 77);
 		panel.add(aArea);
 
-		JButton btnSubmit = new JButton("Submit");
+		// The 2 buttons
+		btnSubmit = new JButton("Submit");
 		btnSubmit.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnSubmit.setBounds(10, 245, 105, 38);
 		panel.add(btnSubmit);
@@ -107,24 +108,29 @@ public class UserInterface {
 		panel.add(btnNextCard);
 		btnNextCard.addActionListener(new NextCardListener());
 
-		ImageIcon icon1 = createImageIcon("/com/vili/resources/Correct_Icon.png", "Correct");
-		ImageIcon icon2 = createImageIcon("/com/vili/resources/Incorrect_Icon.png", "Incorrect");
+		// Icons for right and wrong answers feedback
+		ImageIcon icon1 = new ImageIcon(getUrl("/com/vili/resources/Correct_Icon.png"), "Correct");
+		ImageIcon icon2 = new ImageIcon(getUrl("/com/vili/resources/Incorrect_Icon.png"), "Incorrect");
 		
 
-		rightIcon = new JLabel(icon2);
-		rightIcon.setBounds(140, 240, 70, 50);
-		panel.add(rightIcon);
-		rightIcon.setVisible(false);
+		correctIcon = new JLabel(icon1);
+		correctIcon.setBounds(140, 240, 70, 50);
+		panel.add(correctIcon);
+		correctIcon.setVisible(false);
+		
+		incorrectIcon = new JLabel(icon2);
+		incorrectIcon.setBounds(140, 240, 70, 50);
+		panel.add(incorrectIcon);
+		incorrectIcon.setVisible(false);
 		
 
 	}
-	//	Return the URL of the Image Icon or Null if the file is not found
-	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
-		System.out.println(imgURL);
-		if (imgURL != null) {
+	//	Returns the URL (complete path) of a resource or Null if the file is not found
+	protected URL getUrl(String path) {
+		java.net.URL url = getClass().getResource(path);
+		if (url != null) {
 			
-			return new ImageIcon(imgURL, description);
+			return url;
 			
 		} else {
 			System.err.println("Couldn't find file: " + path);
@@ -168,8 +174,8 @@ public class UserInterface {
 	}
 	
 	public void makeCard(String lineToParse) {
-		//String[] result = lineToParse.split("/");
-		StringTokenizer result = new StringTokenizer(lineToParse, "/");
+	
+		StringTokenizer result = new StringTokenizer(lineToParse, ",");
 		if (result.hasMoreTokens()) {
 			
 			Card card = new Card(result.nextToken(), result.nextToken());
@@ -178,15 +184,16 @@ public class UserInterface {
 		}
 		
 	}
-	
+		// Shows the next card when the button Next Card/Skip Card is pushed
 	private void showNextCard() {
 		
 		currentCard = (Card) cardIterator.next();
 		
 		
 		qArea.setText(currentCard.getQuestion());
+		aArea.setText("");
+		aArea.requestFocus();
 		btnNextCard.setText("Skip Card");
-		isSkipCard = true;
 		
 	}
 	
@@ -194,16 +201,19 @@ public class UserInterface {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
+			correctIcon.setVisible(false);
+			incorrectIcon.setVisible(false);
 				if (cardIterator.hasNext()) {
 					
 					showNextCard();
+				
 				}else {
 					
 					// no more cards to show
 					qArea.setText("That was the last card.");
+					aArea.setText("");
 					btnNextCard.setEnabled(false);
-					
+					btnSubmit.setEnabled(false);
 				}
 			}
 			
@@ -212,9 +222,21 @@ public class UserInterface {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			rightIcon.setVisible(true);
-			btnNextCard.setText("Next Card");
+			String typedAnswer = aArea.getText();		//get the answer typed by the user
 			
+			// if the answer is correct
+			if (typedAnswer.equalsIgnoreCase(currentCard.getAnswer())) {
+				incorrectIcon.setVisible(false);
+				correctIcon.setVisible(true);
+				btnNextCard.setText("Next Card");
+			} 
+			// if the answer is NOT correct
+			else  {
+			correctIcon.setVisible(false);
+			incorrectIcon.setVisible(true);			
+			aArea.setText("Correct answer: "+currentCard.getAnswer());
+			btnNextCard.setText("Next Card");
+			}
 		}
 		
 	}
