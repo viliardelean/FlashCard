@@ -95,7 +95,7 @@ public class FlashCards {
 		aArea.setBounds(10, 154, 331, 77);
 		panel.add(aArea);
 
-		// The 2 buttons
+		// The 2 buttons (Submit and Next Card)
 		btnSubmit = new JButton("Submit");
 		btnSubmit.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnSubmit.setBounds(10, 245, 105, 38);
@@ -106,7 +106,7 @@ public class FlashCards {
 		btnNextCard.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnNextCard.setBounds(236, 245, 105, 38);
 		panel.add(btnNextCard);
-		btnNextCard.addActionListener(new NextCardListener());
+		btnNextCard.addActionListener(e -> showNextCard());
 
 		// Icons for right and wrong answers feedback
 		ImageIcon icon1 = new ImageIcon(getUrl("/com/vili/resources/Correct_Icon.png"), "Correct");
@@ -148,7 +148,7 @@ public class FlashCards {
 			
 		}
 	}
-		
+	// Loads the file into an array list of cards	
 	public void loadFile(File file) {
 			
 			cardList = new ArrayList<Card>();
@@ -187,37 +187,28 @@ public class FlashCards {
 		// Shows the next card when the button Next Card/Skip Card is pushed
 	private void showNextCard() {
 		
-		currentCard = (Card) cardIterator.next();
+		correctIcon.setVisible(false);
+		incorrectIcon.setVisible(false);
+			
+		if (cardIterator.hasNext()) {
 		
-		
-		qArea.setText(currentCard.getQuestion());
-		aArea.setText("");
-		aArea.requestFocus();
-		btnNextCard.setText("Skip Card");
+				currentCard = (Card) cardIterator.next();
+				qArea.setText(currentCard.getQuestion());
+				aArea.setText("");
+				aArea.requestFocus();
+				btnNextCard.setText("Skip Card");
+		} else {
+				
+				// no more cards to show
+				qArea.setText("That was the last card.");
+				aArea.setText("");
+				btnNextCard.setEnabled(false);
+				btnSubmit.setEnabled(false);
+			}
 		
 	}
 	
-	public class NextCardListener implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			correctIcon.setVisible(false);
-			incorrectIcon.setVisible(false);
-				if (cardIterator.hasNext()) {
-					
-					showNextCard();
-				
-				}else {
-					
-					// no more cards to show
-					qArea.setText("That was the last card.");
-					aArea.setText("");
-					btnNextCard.setEnabled(false);
-					btnSubmit.setEnabled(false);
-				}
-			}
-			
-		}
+	
 	public class SubmitListener implements ActionListener{
 
 		@Override
