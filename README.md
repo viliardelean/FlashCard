@@ -13,6 +13,7 @@ How to Play:
   
 --------------------------------------------------------
 About the code:
+
   The Card class is a simple POJO with 2 properties.
   The PlayerMain contains the Main method and creates a FlashCards object.
   The FlashCars class contains several methods like:
