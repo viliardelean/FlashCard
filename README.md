@@ -14,15 +14,19 @@ How to Play:
 --------------------------------------------------------
 About the code:
 
-  The Card class is a simple POJO with 2 properties.
+  The Card class is a simple POJO with 2 properties: question and answer.
+  
   The PlayerMain contains the Main method and creates a FlashCards object.
+  
   The FlashCars class contains several methods like:
+  
       initialise: it creates the User Interface
       loadFile: loads the opened file using the BufferedReader
       makeCard: takes lines from the previous method and ads them 
-  to a list of type Card
+      to a list of type Card
       showNext: it is the listener method of the button Next Card
-  The inner class SubmitListener compares the answer given by the user 
+ 
+ The inner class SubmitListener compares the answer given by the user 
   with the answer property of the Card and if the answer is correct, 
   the "correct icon"(green) apears.
   If the answer is not right, the "incorrect icon"apears and the right answer
